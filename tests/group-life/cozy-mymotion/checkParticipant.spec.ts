@@ -17,20 +17,62 @@ test('Search My Motion Policy Holder', async ({ page }) => {
     const participantPage = new ParticipantInformationPage(page);
 
     await participantPage.openFromHome();
+
+    await expect(
+        participantPage.resultSearch.getByRole('row').first()).toBeVisible({ timeout: 15_0000 })
+    
     await participantPage.choosePolicyHolder();
 
     const policyHolderName = 'Cozy Quality Assurance';
+    const productName = 'Asuransi Corporate Eazy (COZY)';
 
-    // await expect(participantPage.resultSearch.getByRole('row').first()).toBeVisible({ timeout: 15_000 });
 
-    await expect(
-        participantPage.resultSearch.getByRole('row').first()).toBeVisible({ timeout: 15_000 }
-    );
-    
     await participantPage.searchByPolicyHolder(policyHolderName);
 
-    await expect(participantPage.resultSearch).toContainText(
-        policyHolderName,
-        { timeout: 15_000}
-    )
+    const matchingPolicyRows = 
+        participantPage.policyHolderRows(policyHolderName);
+
+    await expect(matchingPolicyRows).toHaveCount(0, {
+        timeout: 5_000
+    })
+    
+    await expect(
+        matchingPolicyRows.filter({
+            has: page.getByRole('cell', {
+                name: productName,
+                exact: true
+            }),
+        })
+    ).toHaveCount(0, {
+        timeout: 5_000
+    })
 })
+
+test('Search Participant Name and Product Name', async ({ page }) => {
+    await page.goto('/index.php/home');
+
+    const participantPage = new ParticipantInformationPage(page)
+
+    await participantPage.openFromHome();
+
+    await expect(
+        participantPage.resultSearch.getByRole('row').first()).toBeVisible({ timeout: 5_000 })
+
+        const searchData = {
+            participantName: 'Rachel Alon',
+            productName: 'Asuransi Corporate Eazy (COZY)'
+        }
+
+    await participantPage.chooseParticipantName();
+
+    await participantPage.searchByParticipantName(searchData.participantName);
+
+    const matchingRows = participantPage.participantAndProductRows(
+        searchData.participantName,
+        searchData.productName
+    )
+
+    await expect(matchingRows).toHaveCount(0, { timeout: 5_000 })
+});
+
+

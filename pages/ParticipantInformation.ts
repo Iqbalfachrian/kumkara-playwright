@@ -7,6 +7,8 @@ export class ParticipantInformationPage {
   readonly participantInformationLink: Locator;
   readonly policyCombobox: Locator;
   readonly policyHolderSearchInput: Locator;
+  readonly participantSearchCombobox: Locator;
+  readonly participantNameSearchInput: Locator;
   readonly searchButton: Locator;
   readonly resultSearch: Locator;
 
@@ -25,10 +27,17 @@ export class ParticipantInformationPage {
     'a[href$="/grouplife/new_business/participant_information"]'
     );
 
-    this.policyCombobox = page.locator('#key');
+    this.policyCombobox = 
+    page.locator('#key');
 
     this.policyHolderSearchInput = 
     page.locator('#word');
+
+    this.participantSearchCombobox =
+    page.locator('#key2');
+
+    this.participantNameSearchInput = 
+    page.locator('#word2')
 
     this.searchButton = 
     page.locator('#btn-search');
@@ -64,9 +73,34 @@ export class ParticipantInformationPage {
         // console.log('button count:', await this.searchButton.count())
         // console.log('visible:', await this.searchButton.isVisible())
         // console.log('enabled:', await this.searchButton.isEnabled())
-        
         await this.searchButton.click();
     }
+
+    async chooseParticipantName() {
+        await this.participantSearchCombobox.selectOption({
+            label: 'Participant Name',
+        });
+    }
+
+    async searchByParticipantName(participantName: string) {
+        await this.participantNameSearchInput.fill(participantName);
+        await this.searchButton.click();
+    }
+
+   participantAndProductRows(participantName: string, productName: string): Locator {
+        return this.resultSearch.getByRole('row').filter({
+            has: this.page.getByRole('cell', {
+                name: participantName
+            }),
+        })
+        .filter({
+            has: this.page.getByRole('cell', {
+                name: productName,
+                exact: true,
+            }),
+        })
+   }
+
     policyHolderRows(policyHolder: string): Locator {
         return this.resultSearch.getByRole('row').filter({
             has: this.page.getByRole('cell', {
