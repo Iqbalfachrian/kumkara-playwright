@@ -10,7 +10,7 @@ export class ParticipantInformationPage {
   readonly participantSearchCombobox: Locator;
   readonly participantNameSearchInput: Locator;
   readonly searchButton: Locator;
-  readonly resultSearch: Locator;
+  readonly resultTable: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -27,88 +27,58 @@ export class ParticipantInformationPage {
     'a[href$="/grouplife/new_business/participant_information"]'
     );
 
-    this.policyCombobox = 
-    page.locator('#key');
-
-    this.policyHolderSearchInput = 
-    page.locator('#word');
-
-    this.participantSearchCombobox =
-    page.locator('#key2');
-
-    this.participantNameSearchInput = 
-    page.locator('#word2')
-
-    this.searchButton = 
-    page.locator('#btn-search');
-
-    this.resultSearch = 
-    page.locator('#table');
+    this.policyCombobox = page.locator('#key');
+    this.policyHolderSearchInput = page.locator('#word');
+    this.participantSearchCombobox = page.locator('#key2');
+    this.participantNameSearchInput = page.locator('#word2');
+    this.searchButton = page.locator('#btn-search');
+    this.resultTable = page.locator('#table');
 
   }
 
-    async openFromHome() {
-    await this.participantMenu.click();
-    await this.groupLifeMenu.waitFor({
-        state: 'visible'
-    });
-
+    async openFromHome(): Promise<void> {
+    await this.page.goto('/index.php/home');
+    await this.participantMenu.click()
     await this.groupLifeMenu.hover();
-
-    await this.participantInformationLink.waitFor({
-        state: 'visible'
-    });
-
     await this.participantInformationLink.click();
-    };
 
-    async choosePolicyHolder() {
+    }
+
+    async searchByPolicyHolder(policyHolder: string): Promise<void> {
         await this.policyCombobox.selectOption({
             label: 'Policy Holder'
         });
-    }
-
-    async searchByPolicyHolder(policyHolder: string) {
         await this.policyHolderSearchInput.fill(policyHolder);
-        // console.log('button count:', await this.searchButton.count())
-        // console.log('visible:', await this.searchButton.isVisible())
-        // console.log('enabled:', await this.searchButton.isEnabled())
         await this.searchButton.click();
     }
 
-    async chooseParticipantName() {
+    async searchByParticipantName(participantName: string): Promise<void> {
         await this.participantSearchCombobox.selectOption({
-            label: 'Participant Name',
+            label: 'Participant Name'
         });
-    }
-
-    async searchByParticipantName(participantName: string) {
         await this.participantNameSearchInput.fill(participantName);
+
+        // console.log('Search button count:', await this.searchButton.count());
+        // console.log('Search button visible:', await this.searchButton.isVisible());
+        // console.log('Search button enabled:', await this.searchButton.isEnabled());
+
         await this.searchButton.click();
     }
 
-   participantAndProductRows(participantName: string, productName: string): Locator {
-        return this.resultSearch.getByRole('row').filter({
-            has: this.page.getByRole('cell', {
-                name: participantName
-            }),
-        })
-        .filter({
-            has: this.page.getByRole('cell', {
-                name: productName,
-                exact: true,
-            }),
-        })
-   }
 
     policyHolderRows(policyHolder: string): Locator {
-        return this.resultSearch.getByRole('row').filter({
-            has: this.page.getByRole('cell', {
-                name: policyHolder,
-                exact: true
-            })
-        })
+        return this.resultTable.getByRole('row').filter({
+            hasText: policyHolder
+        });
     }
-
+    participantAndProductRows(
+        participantName: string,
+        productName: string
+    ): Locator {
+        return this.resultTable
+            .getByRole('row')
+            .filter({ hasText: participantName })
+            .filter({ hasText: productName })
+    }
 }
 
