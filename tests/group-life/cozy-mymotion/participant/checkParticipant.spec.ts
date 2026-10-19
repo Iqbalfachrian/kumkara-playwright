@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ParticipantInformationPage } from '../../../../pages/ParticipantInformation';
+import { ParticipantInformationPage } from '../../../../pages/group-life/participant/ParticipantInformation';
 
 const testData = {
     policyHolder: 'Cozy Quality Assurance',

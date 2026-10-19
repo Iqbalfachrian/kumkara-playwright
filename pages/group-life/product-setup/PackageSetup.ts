@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 
-export class ProductSetup {
+export class PackageSetup {
     readonly page: Page;
     readonly productSetupMenu: Locator;
     readonly groupLifeMenu: Locator;

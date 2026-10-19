@@ -1,55 +1,66 @@
-# Kumkara Playwright Automation
+# Kumkara Playwright
 
-Playwright and TypeScript project for learning and automating Kumkara in the
-approved non-production environment. Tests are organized by business feature,
-because one person develops and runs this project. Smoke and regression tiers
-are not part of the current workflow.
+Playwright + TypeScript practice project for a Manual QA learning Automation QA/SDET. Tests are organized by business feature so the project stays easy to understand and maintain for one learner/developer.
 
-## Current scope
+## Learning goals
 
-- SSO authentication is handled by `tests/auth/auth.setup.ts`.
-- The setup opens Kumkara and saves an authenticated browser state locally.
-- Feature tests use Page Object Model classes in `pages/`.
-- The current feature test covers Participant Information for Cozy My Motion:
-  opening the page and searching by Policy Holder.
+- Understand the relationship between a test spec and its Page Object Model (POM).
+- Keep page locators and user interactions in `pages/`; keep scenario steps and expected results in feature specs.
+- Add coverage feature by feature, based on behavior observed in the approved non-production application.
+- Learn reliable assertions, test isolation, authentication setup, and debugging with Playwright reports and traces.
 
-The UI and locators can change. Recheck them in the approved non-production
-environment when a test starts failing; do not use production.
+The current organization is by feature. Smoke and regression folders or execution tiers are not part of the current workflow. A test can be added or improved alongside the feature it covers without first classifying it into a tier.
 
-## Project structure
+## Current feature coverage
+
+- **Group Life → Cozy My Motion → Participant Information**: search by Policy Holder and check for a matching result; search by Participant Name and check for a matching Participant/Product row.
+- **Group Life → Product Setup → Package Setup**: check that the expected 10 Cozy package codes are displayed and each has Active status.
+
+These tests depend on the current non-production UI and test records. Recheck the UI and approved test data when a locator or assertion fails; do not assume an old screenshot or note still matches the application.
+
+## Project layout
 
 ```text
-pages/                                      Page Object Model classes
-pages/SSOLoginPages.ts                      SSO login page
-pages/PortalDashboardPage.ts                SSO portal dashboard
-pages/ParticipantInformation.ts             Participant Information page
-tests/auth/auth.setup.ts                    SSO setup and local storage state
-tests/group-life/cozy-mymotion/              Cozy My Motion feature tests
-playwright/.auth/                            Local auth state; ignored by Git
-playwright.config.ts                         Playwright projects and settings
+pages/
+  SSOLoginPages.ts
+  PortalDashboardPage.ts
+  ParticipantInformation.ts
+  ProductSetup.ts
+tests/
+  auth/
+    auth.setup.ts
+  group-life/
+    cozy-mymotion/
+      participant/
+        checkParticipant.spec.ts
+      product-setup/
+        packageSetup.spec.ts
+playwright.config.ts
+playwright/.auth/                 # local authentication state; ignored by Git
 ```
 
-Add a new test under the folder for its feature. For example, tests for another
-Group Life product should go in a sibling feature folder under
-`tests/group-life/`. Keep page interactions in the relevant POM and scenario
-steps plus expected results in the spec.
+Add a spec under the folder for the feature being automated. Keep locators and page actions in its POM. Keep the user journey and assertions in the spec so the expected behavior remains visible in the test.
 
 ## Environment and security
 
-Use the approved VPN/network and non-production environment. Never point tests
-at production. Create `.env` from `.env.example` and fill in its values through
-the approved credential process. `.env` and `playwright/.auth/` are ignored by
-Git. Do not print or commit credentials, cookies, tokens, storage state,
-sensitive traces, screenshots, or internal data.
+Run this project only from an approved device and network/VPN, against an explicitly confirmed non-production environment. Never use production.
 
-## Install
+Create `.env` from `.env.example` and populate it through the approved credential process. Do not paste or print `.env`, credentials, cookies, tokens, or authentication state. `.env` and `playwright/.auth/` are ignored by Git. Do not commit or share reports, traces, screenshots, or logs if they contain internal URLs, personal/company data, or authentication material.
 
-Run these commands from the repository root:
+Browser inspection and test flows should be read-only. Do not submit, save, create, edit, delete, approve, export, or otherwise change business data. Avoid opening real participant or policy records unless the task explicitly requires an approved test record and its scope is clear.
+
+## Set up on a device
+
+Clone the private repository using the company's approved GitHub access, then open a terminal in the cloned `Kumkara-Playwright` folder.
+
+Install the locked dependencies and the browser configured by this checkout (currently Firefox):
 
 ```bash
-npm install
+npm ci
 npx playwright install firefox
 ```
+
+Create the local environment file:
 
 macOS/Linux:
 
@@ -63,38 +74,41 @@ Windows PowerShell:
 Copy-Item .env.example .env
 ```
 
-## Run tests
+Fill `.env` only through the approved credential process. Do not commit it.
 
-Run the Cozy My Motion feature tests from the repository root:
+## Run and verify
 
-```bash
-npx playwright test tests/group-life/cozy-mymotion --project=authenticated
-```
-
-The `authenticated` project depends on `setup`, so Playwright runs the SSO
-setup first and refreshes the local storage state. To run all currently
-available feature tests:
-
-```bash
-npx playwright test --project=authenticated
-```
-
-Type-check without opening Kumkara:
+Type-checking checks TypeScript only; it does not log in or prove that the current UI and locators work:
 
 ```bash
 npm run typecheck
 ```
 
-Open the HTML report after a run:
+Run one feature spec from the repository root:
+
+```bash
+npx playwright test tests/group-life/cozy-mymotion/participant/checkParticipant.spec.ts --project=authenticated
+npx playwright test tests/group-life/cozy-mymotion/product-setup/packageSetup.spec.ts --project=authenticated
+```
+
+The `authenticated` project depends on `setup`. Playwright runs `tests/auth/auth.setup.ts` first to create/refresh the local authentication state, then runs the selected feature spec. These runs require the approved VPN/network and a usable non-production SSO session. Do not share the generated auth state.
+
+Run all currently available authenticated feature specs:
+
+```bash
+npx playwright test --project=authenticated
+```
+
+Open the local HTML report after a run:
 
 ```bash
 npm run report
 ```
 
-## Git workflow
+Treat the report and any trace or screenshot as potentially sensitive. Keep them local unless the company approves sharing and they have been sanitized.
 
-Work on one device at a time. Commit and push before switching devices; pull
-the branch on the next device before continuing. Do not work concurrently on
-the same branch from the MacBook and Windows checkout. Check `git status` before
-committing, and keep `.env`, `playwright/.auth/`, and sensitive test artifacts
-out of commits.
+## Git workflow across devices
+
+Use one device at a time for this branch. Before switching devices, check the active branch and working tree, commit the intended changes, and push. On the next device, pull the same branch before continuing. Do not work concurrently on the same branch from the MacBook and Windows checkout.
+
+Keep `.env`, `playwright/.auth/`, and sensitive test artifacts out of commits. Before committing, inspect the staged file list and staged diff; prefer adding the intended paths rather than staging unrelated work.

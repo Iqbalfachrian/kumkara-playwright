@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { ProductSetup } from "../../../../pages/ProductSetup";
+import { PackageSetup } from "../../../../pages/group-life/product-setup/PackageSetup";
 
 test('Show 10 package code with Active Status', async ({ page }) => {
-    const productSetup = new ProductSetup(page)
+    const productSetup = new PackageSetup(page)
 
     await productSetup.openPackageSetup();
 
