@@ -17,7 +17,7 @@ test('Search by Product Name & Verify Product Code', async ({ page }) => {
         productSetup.resultTable).toBeVisible({ timeout: 5_000 }
     )
     await productSetup.searchByProductName(testData.productName);
-    
+        
     const matchingRows = productSetup.productNameAndProductCode(
         testData.productCode,
         testData.productName
