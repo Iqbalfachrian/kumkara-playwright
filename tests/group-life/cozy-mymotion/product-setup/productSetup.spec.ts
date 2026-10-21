@@ -25,7 +25,7 @@ test('Search by Product Name & Verify Product Code', async ({ page }) => {
     await expect(matchingRows).toBeVisible({ timeout: 5_000 })
 })
 
-test('Show no matching row when product code does not exist', async ({ page }) => {
+test('Show no matching row when product name does not exist', async ({ page }) => {
     const productSetup = new ProductSetup(page);
 
     await productSetup.openFromHome();
@@ -40,20 +40,18 @@ test('Show no matching row when product code does not exist', async ({ page }) =
     );
 
     //Check product is not exist on Kumkara
-    const missingProdutName = 'My Activity';
+    const missingProductName = 'My Activity';
 
-    await productSetup.searchByProductName(missingProdutName);
+    await productSetup.searchByProductName(missingProductName);
     await expect(productSetup.productNameSearchInput).toHaveValue(
-        missingProdutName, {timeout: 15_000}
+        missingProductName, {timeout: 15_000}
     );
 
     //Assertions product name does not exist
-    await expect(existingProductRow).toHaveCount(0, {
-        timeout: 5_000,
-    });
     await expect(
-        productSetup.productSetupRows(missingProdutName)
-    ).toHaveCount(0), {
-        timeout: 5_000,
-    }
-})
+        page.getByText('No records to view', {exact: true})
+    ).toBeVisible({ timeout: 5_000 });
+
+    await expect(
+        productSetup.resultTable.getByRole('grid')).toHaveCount(0, {timeout: 5_000})
+});
