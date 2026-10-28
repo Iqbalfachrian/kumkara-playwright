@@ -8,7 +8,8 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "typecheck": "tsc --noEmit",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "addClaimSubmission": "playwright test tests/group-life/cozy-mymotion/claim/claimSUbmission.spec.ts --headed"
   },
   "keywords": [],
   "author": "",
